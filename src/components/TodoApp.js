@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import noItemSVG from './../no-item.svg';
 
 function TotoItem(props) {
   return (
@@ -41,6 +42,7 @@ export default class TodoApp extends Component {
     const { items } = this.state;
     const isCompleted = item.isCompleted;
     const index = items.indexOf(item);
+    
     return () => {
       this.setState({
         items: [
@@ -55,17 +57,39 @@ export default class TodoApp extends Component {
     };
   };
 
-  handleInput = (e) => {
-    console.log(e.target.value);
-    this.setState({
-      inputAddItem: false
-    })
-  };
-
-  addNewItem = (e) => {
+  handleKeyDown = (e) => {
     const { items } = this.state;
     const value = this.inputAddItem.current.value;
-    this.inputAddItem.current.focus();
+    if (e.key === 'Enter') {
+      if (value.length) {
+        this.setState({
+          items: [
+            ...items,
+            {
+              title: value,
+              isCompleted: false,
+            },
+          ],
+          inputWarning: false,
+        });
+        this.inputAddItem.current.value = '';
+      } else {
+        this.setState({
+          inputWarning: true
+        });
+      }
+    }
+  };
+
+  handleBlur = (e) => {
+      this.setState({
+        inputWarning: false
+      });
+  }
+
+  handAddNewItem = (e) => {
+    const { items } = this.state;
+    const value = this.inputAddItem.current.value;
     if (value.length) {
       this.setState({
         items: [
@@ -77,12 +101,14 @@ export default class TodoApp extends Component {
         ],
         inputWarning: false,
       });
+      this.inputAddItem.current.focus();
+      this.inputAddItem.current.value = '';
     } else {
+      this.inputAddItem.current.focus();
       this.setState({
         inputWarning: true
       });
     }
-    
   };
 
   render() {
@@ -114,7 +140,13 @@ export default class TodoApp extends Component {
             </div>
           </main>
         )}
-        {items.length === 0 && <main>Seems like You have no list..</main>}
+        {items.length === 0 && <main className="noItem">
+            <figure onClick={this.openModal}>
+              <img src={noItemSVG} alt=""/>
+            </figure>
+            <p>Seems like You have no list. <br/>
+            Just try to create some...</p>
+          </main>}
         <footer>
           <button className="TodoApp-AddBtn" onClick={this.openModal}>
             +
@@ -127,12 +159,19 @@ export default class TodoApp extends Component {
                 ×
               </button>
               <div className="Modal-content">
-                <input ref={this.inputAddItem} type="text" placeholder="Add a new item" onKeyUp={this.handleInput} />
-                {inputWarning && <em>This field is required</em>}
+                <input
+                  ref={this.inputAddItem}
+                  type="text"
+                  placeholder="Add a new item"
+                  onKeyDown={this.handleKeyDown}
+                  onBlur={this.handleBlur}
+                  autoFocus={true}
+                />
+                {inputWarning && <em className="form-error"><small>Please type something...</small></em>}
               </div>
               <div className="Modal-footer">
-                <button ref={this.btnAddItem} onClick={this.addNewItem} className="btn btn-green">
-                  Create
+                <button ref={this.btnAddItem} onClick={this.handAddNewItem} className="btn btn-green">
+                  Add
                 </button>
               </div>
             </div>
