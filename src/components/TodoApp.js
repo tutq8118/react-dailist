@@ -18,10 +18,10 @@ export default class TodoApp extends Component {
     this.btnAddItem = React.createRef();
     this.inputAddItem = React.createRef();
 
-    const localItems = localStorage.getItem('todoItems') ? localStorage.getItem('todoItems') : [];
+    const localItems = localStorage.getItem('todoItems') ? JSON.parse(localStorage.getItem('todoItems')) : [];
 
     this.state = {
-      items: JSON.parse(localItems),
+      items: localItems,
       openModal: false,
       inputWarning: false,
     };
